@@ -222,8 +222,8 @@ Qed.
 *)
 Lemma modus_ponens (P Q : iProp Σ) : P -∗ (P -∗ Q) -∗ Q.
 Proof.
-  (* exercise *)
-Admitted.
+  iIntros "P PQ". iApply "PQ". iAssumption.
+Qed.
 
 (**
   Just as with Coq tactics, Iris allows nesting of introduction
@@ -236,8 +236,8 @@ Admitted.
 *)
 Lemma sep_assoc_1 (P Q R : iProp Σ) : P ∗ Q ∗ R ⊢ (P ∗ Q) ∗ R.
 Proof.
-  (* exercise *)
-Admitted.
+  iIntros "[P [Q R]]". iSplitR "R". iSplitL "P". iAssumption. iAssumption. iAssumption.
+Qed.
 
 (**
   Manually splitting a separation can become tedious. To alleviate this,
@@ -289,8 +289,9 @@ Qed.
 Lemma wand_adj (P Q R : iProp Σ) : (P -∗ Q -∗ R) ⊣⊢ (P ∗ Q -∗ R).
 Proof.
   iSplit.
-  (* exercise *)
-Admitted.
+  - iIntros "PQR (P & Q)". iApply ("PQR" with "P Q").
+  - iIntros "PQR P Q". iApply "PQR". iFrame.
+Qed.
 
 (**
   Disjunctions [∨] are treated just like disjunctions in Coq. The
