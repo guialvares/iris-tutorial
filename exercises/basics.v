@@ -302,8 +302,12 @@ Qed.
 *)
 Lemma or_comm (P Q : iProp Σ) : Q ∨ P ⊢ P ∨ Q.
 Proof.
-  (* exercise *)
-Admitted.
+  iIntros "[Q | P]".
+  - iRight. iAssumption.
+  - iLeft. iAssumption.
+Qed.
+
+
 
 (**
   We can even prove the usual elimination rule for or-elimination
@@ -312,8 +316,10 @@ Admitted.
 *)
 Lemma or_elim (P Q R : iProp Σ) : (P -∗ R) -∗ (Q -∗ R) -∗ P ∨ Q -∗ R.
 Proof.
-  (* exercise *)
-Admitted.
+  iIntros "PR QR [P | Q]".
+  - iApply "PR". iAssumption.
+  - iApply "QR". iAssumption. 
+Qed.
 
 (**
   Separating conjunction distributes over disjunction (for the same
@@ -321,8 +327,18 @@ Admitted.
 *)
 Lemma sep_or_distr (P Q R : iProp Σ) : P ∗ (Q ∨ R) ⊣⊢ P ∗ Q ∨ P ∗ R.
 Proof.
-  (* exercise *)
-Admitted.
+  iSplit.
+  - iIntros "(P & [Q | R])". 
+    -- iLeft. iFrame.
+    -- iRight. iFrame.
+  - iIntros "[(P & Q) | (P & R)]". 
+    * iSplitL "P". 
+      -- iAssumption.
+      -- iLeft. iAssumption.
+    * iSplitL "P".
+      -- iAssumption.
+      -- iRight. iAssumption.
+Qed.
 
 (**
   Iris has existential and universal quantifiers over any Coq type.
@@ -338,8 +354,11 @@ Proof.
   - iIntros "(HP & %x & HΦ)".
     iExists x.
     iFrame.
-  - (* exercise *)
-Admitted.
+  - iIntros "(%x & P & HΦ)".
+    iSplitL "P".
+    * iAssumption.
+    * iExists x. iAssumption.
+Qed.
 
 (**
   Likewise, forall quantification works almost as in Coq. To introduce
@@ -351,7 +370,10 @@ Admitted.
 Lemma sep_all_distr {A} (P Q : A → iProp Σ) :
   (∀ x, P x) ∗ (∀ x, Q x) -∗ (∀ x, P x ∗ Q x).
 Proof.
-  (* exercise *)
-Admitted.
+  iIntros "(P & Q) %x".
+  iSplitL "P".
+  - iApply "P".
+  - iApply "Q".
+Qed.
 
 End proofs.
