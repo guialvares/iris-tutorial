@@ -1,6 +1,6 @@
 {
 	"name": "iris-tutorial x86-64 container",
-	"image": "ghcr.io/logsem/iris-tutorial/docker-x86-64",
+	"build": { "dockerfile": "../../docker_image/Dockerfile" },
 	"customizations": {
 		"vscode": {
 		  "extensions": ["maximedenes.vscoq"]
