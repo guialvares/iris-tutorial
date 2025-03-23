@@ -88,8 +88,9 @@ Qed.
 
 Lemma pers_dup (P : iProp Σ) `{!Persistent P} : P ⊢ P ∗ P.
 Proof.
-  (* exercise *)
-Admitted.
+  iIntros "#HP".
+  iSplitR "HP"; iAssumption.
+Qed.
 
 (**
   Persistent propositions satisfy a lot of nice properties simply by
@@ -173,8 +174,8 @@ Proof.
       ["#"].
     *)
     iFrame "#".
-  - (* exercise *)
-Admitted.
+  - iIntros "#(HP & HQ)". iSplitR "HP"; iAssumption.
+Qed.
 
 (** Persistency is preserved by quantifications. *)
 
@@ -329,8 +330,20 @@ Lemma counter_spec (inc : val) :
     counter inc
   {{{ v, RET v; ⌜v = #2⌝ }}}.
 Proof.
-  (* exercise *)
-Admitted.
+  iIntros "%Ha #L HL".
+  rewrite /counter.
+  wp_alloc l1 as "P".
+  wp_let.
+  wp_apply ("L" with "P").
+  iIntros (hl) "P".
+  wp_seq.
+  wp_apply ("L" with "P").
+  iIntros (hl2) "P".
+  wp_seq.
+  wp_load.
+  iApply "HL".
+  done.
+Qed.
 
 (* ----------------------------------------------------------------- *)
 (** *** Persistent Points-to *)
