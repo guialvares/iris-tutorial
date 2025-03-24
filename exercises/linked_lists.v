@@ -113,8 +113,31 @@ Lemma append_spec (l1 l2 : val) (xs ys : list val) :
 Proof.
   revert ys l1 l2.
   induction xs as [| x xs' IH]; simpl.
-  (* exercise *)
-Admitted.
+  - iIntros (ys l1 l2 Φ).
+    iIntros "[-> L2] H".
+    unfold append.
+    wp_pures.
+    iApply ("H" with "L2").
+  - iIntros (ys l1 l2 Φ).
+    iIntros "[(%hd & %l' & -> & Hd & HL) HL2] HH".
+    unfold append.
+    wp_pures.
+    wp_load.
+    wp_pures.
+    wp_load.
+    wp_pure.
+    wp_pure.
+    wp_pure.
+    wp_apply (IH with "[HL HL2]").
+    iFrame.
+    iIntros (l) "isL".
+    wp_pures.
+    wp_store.
+    wp_pures.
+    iApply "HH".
+    iFrame.
+    done.
+Qed.
 
 (**
   We will implement reverse using a helper function called
