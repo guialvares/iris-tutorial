@@ -79,9 +79,9 @@ Proof.
     iApply "HΦ".
     iExists hd.
     iExists l'.
-     iFrame.
-     iPureIntro.
-     done.
+    iFrame.
+    iPureIntro.
+    done.
 Qed.
 
 (**
