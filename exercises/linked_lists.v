@@ -169,8 +169,24 @@ Lemma reverse_append_spec (l acc : val) (xs ys : list val) :
 Proof.
   revert l acc ys.
   induction xs as [| x xs' IH]; simpl.
-  (* exercise *)
-Admitted.
+  - iIntros (l acc ys Φ) "(-> & HYs) Ls".
+    wp_rec.
+    wp_pures.
+    iApply ("Ls" with "HYs").
+  - iIntros (l acc ys Φ) "[(%hd & %l' & -> & Hd & XsL) YsL] HΦ".
+    wp_rec.
+    wp_pures.
+    wp_load.
+    wp_pures.
+    wp_load.
+    wp_pures.
+    wp_store.
+    wp_pures.
+    wp_apply ((IH _ _ (x :: ys)) with "[XsL YsL Hd]").
+    iFrame.
+    done.
+    by rewrite -app_assoc.
+Qed.
 
 (**
   Now, we use the specification of [reverse_append] to prove the
@@ -181,8 +197,13 @@ Lemma reverse_spec (l : val) (xs : list val) :
     reverse l
   {{{ v, RET v; isList v (rev xs) }}}.
 Proof.
-  (* exercise *)
-Admitted.
+  iIntros (Φ) "HXs HΦ".
+  wp_rec.
+  wp_pures.
+  wp_apply ((reverse_append_spec _ _ _ []) with "[$HXs]").
+  done.
+  by rewrite app_nil_r.
+Qed.
 
 (**
   The specifications thus far have been rather straightforward. Now we
