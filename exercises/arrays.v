@@ -133,8 +133,22 @@ Lemma inc_spec a l :
     inc #a #(length l)
   {{{RET #(); a ↦∗ ((λ i : Z, #(i + 1)) <$> l)}}}.
 Proof.
-  (* exercise *)
-Admitted.
+  iIntros "%Φ H HInc".
+  iInduction l as [|i l] "IH" forall (a).
+  - wp_lam. wp_pures. iApply "HInc". done.
+  - rewrite !fmap_cons !array_cons.
+    iDestruct "H" as "[Ha Hb]".
+    wp_rec.
+    wp_pures.
+    wp_load.
+    wp_store.
+    wp_pures.
+    rewrite Nat2Z.inj_succ Z.sub_1_r Z.pred_succ.
+    wp_apply ("IH" with "Hb").
+    iIntros "HB".
+    iApply "HInc".
+    iFrame.
+Qed.
 
 (* ================================================================= *)
 (** ** Reverse *)
