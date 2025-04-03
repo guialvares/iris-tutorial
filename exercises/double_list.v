@@ -7,7 +7,7 @@ Fixpoint dlist (a prev : val) (xs : list val) (e next : val) : iProp Σ :=
   match xs with
   | [] => ⌜a = next /\ prev = e⌝
   | x :: xs => ∃ (b : val) (ha : loc) , 
-    ha ↦ (x, b, prev) ∗ dlist b a xs e next ∗ ⌜a = #ha ⌝
+    ha ↦ (x, b, prev) ∗ dlist b a xs e next ∗ ⌜a = SOMEV #ha ⌝
   end.
 
 Print val.
@@ -31,20 +31,22 @@ Proof.
     unfold dlist.
     iExists next.
     iExists a.
-    by iFrame.
-Qed.
+Abort.
+    (* by iFrame.
+Qed. *)
 
 Lemma wp_ex2 :
     {{{ True }}}
-    let: "a" := ref #1 in 
+    let: "a0" := ref #1 in 
+    let: "a" := SOME "a0" in 
     let: "prev" := ref #2 in 
     let: "next" := ref #3 in 
-    "a" <- (InjRV #1, "next", "prev")
+    "a0" <- (InjRV #1, "next", "prev")
     {{{ RET #(); ∃ a prev next, dlist a prev list_ex a next }}}.
 Proof.
     iIntros (h) "WA Phi".
     wp_alloc a as "Ha".
-    wp_let.
+    wp_pures.
     wp_alloc prev as "HPrev".
     wp_let.
     wp_alloc next as "HNext".
@@ -52,7 +54,7 @@ Proof.
     wp_store.
     iModIntro.
     iApply "Phi".
-    iExists #a.
+    iExists (SOMEV #a).
     iExists #prev.
     iExists #next.
     unfold list_ex.
