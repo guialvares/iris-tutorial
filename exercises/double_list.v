@@ -7,7 +7,7 @@ Fixpoint dlist (a prev : val) (xs : list val) (e next : val) : iProp Σ :=
   match xs with
   | [] => ⌜a = next /\ prev = e⌝
   | x :: xs => ∃ (b : val) (ha : loc) , 
-    ha ↦ (x, b, prev) ∗ dlist b a xs e next ∗ ⌜a = SOMEV (#ha) ⌝
+    ha ↦ (x, b, prev) ∗ dlist b a xs e next ∗ ⌜a = #ha ⌝
   end.
 
 Print val.
@@ -17,14 +17,10 @@ Compute ([SOMEV #1] : list val).
 Example list_ex : list val := SOMEV #1 :: [] .
 Example list_ex2 : list val := SOMEV #2 :: SOMEV #1 :: [] .
 
-(* Example prog : expr :=
-    let: "l1" := ref (#0) in
-    #1. *)
-
-Lemma wp_ex (prev next x : val) (a : loc) :
+Lemma wp_ex (prev next : val) (a : loc) :
     {{{ a ↦ #0 }}}
     #a <- (InjRV #1, next, prev)
-    {{{ v, RET v; dlist (SOMEV #a) prev list_ex (SOMEV #a) next }}}.
+    {{{ RET #(); dlist #a prev list_ex #a next }}}.
 Proof.
     iIntros (h) "WA Phi".
     wp_pures.
@@ -34,6 +30,34 @@ Proof.
     unfold list_ex.
     unfold dlist.
     iExists next.
+    iExists a.
+    by iFrame.
+Qed.
+
+Lemma wp_ex2 :
+    {{{ True }}}
+    let: "a" := ref #1 in 
+    let: "prev" := ref #2 in 
+    let: "next" := ref #3 in 
+    "a" <- (InjRV #1, "next", "prev")
+    {{{ RET #(); ∃ a prev next, dlist a prev list_ex a next }}}.
+Proof.
+    iIntros (h) "WA Phi".
+    wp_alloc a as "Ha".
+    wp_let.
+    wp_alloc prev as "HPrev".
+    wp_let.
+    wp_alloc next as "HNext".
+    wp_let.
+    wp_store.
+    iModIntro.
+    iApply "Phi".
+    iExists #a.
+    iExists #prev.
+    iExists #next.
+    unfold list_ex.
+    unfold dlist.
+    iExists #next.
     iExists a.
     by iFrame.
 Qed.
