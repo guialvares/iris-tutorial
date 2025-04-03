@@ -37,21 +37,18 @@ Qed. *)
 
 Lemma wp_ex2 :
     {{{ True }}}
-    let: "a0" := ref #1 in 
-    let: "a" := SOME "a0" in 
-    let: "prev" := ref #2 in 
-    let: "next" := ref #3 in 
-    "a0" <- (InjRV #1, "next", "prev")
+    let: "prev" := ref #0 in 
+    let: "next" := ref #1 in 
+    let: "a" := ref ((InjRV #1, "next", "prev"))  in
+    #()
     {{{ RET #(); ∃ a prev next, dlist a prev list_ex a next }}}.
 Proof.
     iIntros (h) "WA Phi".
-    wp_alloc a as "Ha".
-    wp_pures.
     wp_alloc prev as "HPrev".
     wp_let.
     wp_alloc next as "HNext".
-    wp_let.
-    wp_store.
+    wp_alloc a as "Ha".
+    wp_pures.
     iModIntro.
     iApply "Phi".
     iExists (SOMEV #a).
