@@ -168,6 +168,8 @@ Definition reverse : val :=
     "last" <- "tmp";;
     "reverse" ("arr" +ₗ #1) ("len" - #2).
 
+About rev_ind.
+
 (**
   Notice we are not following structural induction on the list of values
   as we remove elements from both the front and the back. As such, you
@@ -179,7 +181,45 @@ Lemma reverse_spec a l :
     reverse #a #(length l)
   {{{RET #(); a ↦∗ rev l}}}.
 Proof.
-  (* exercise *)
+  iIntros (Φ) "Hal HΦ".
+  iLöb as "IH" forall (a l).
+  induction l as [|v2 l _] using rev_ind.
+  - wp_pures. wp_rec. wp_pures. iModIntro. iApply "HΦ". unfold rev. done.
+  - wp_rec. wp_let. destruct l.
+    * wp_pures. iModIntro. iApply "HΦ". done.
+    * wp_pures.
+      rewrite app_length.
+      change (length [v2]) with 1.
+      have h: length l + 1 = S (length l).
+      apply Nat.add_comm.
+      rewrite h.
+      destruct (bool_decide_reflect (S (S (length l)) ≤ 1)%Z) as [H|H].
+      { apply (Nat2Z.inj_le _ 1) in H. auto.
+        apply le_S_n in H. inversion H.
+      }
+      wp_pures.
+      change (v :: ?l) with ([v] ++ l) at 2.
+      rewrite !rev_app_distr app_assoc.
+      change (rev [?v]) with [v].
+      change ([?a] ++ ?v) with (a :: v).
+      change ((?a :: ?v) ++ ?v2) with (a :: (v ++ v2)).
+      rewrite array_cons array_app array_singleton.
+      iDestruct "Hal" as "(Ha & Hal & HEnd)".
+      wp_load.
+      wp_pures.
+      suffices h3: (a +ₗ (S (S (length l)) - 1)) = (a +ₗ 1 +ₗ length l) .
+      -- rewrite h3.
+         wp_load.
+         wp_store.
+         wp_store.
+         wp_pures.
+         suffices h4: (S (S (length l)) - 2)%Z = length l .
+         ** rewrite h4.
+            wp_apply ("IH" with "Hal").
+            iIntros "H2".
+            iApply "HΦ".
+            rewrite array_cons array_app array_singleton rev_length.
+            iFrame.
 Admitted.
 
 End proofs.
