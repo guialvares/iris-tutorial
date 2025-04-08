@@ -42,27 +42,27 @@ Proof.
 Qed.
 
 Lemma wp_ex2 :
-    {{{ True }}}
-    let: "prev" := ref #0 in 
-    let: "next" := ref #1 in 
-    let: "a" := ref (#1, "next", "prev")  in
-    #()
-    {{{ RET #(); ∃ a prev next, dlist a prev (#1 :: []) a next }}}.
+  {{{ True }}}
+  let: "prev" := ref #0 in 
+  let: "next" := ref #1 in 
+  let: "a" := ref (#1, "next", "prev")  in
+  #()
+  {{{ RET #(); ∃ a prev next, dlist a prev (#1 :: []) a next }}}.
 Proof.
-    iIntros (h) "WA Phi".
-    wp_alloc prev as "HPrev".
-    wp_let.
-    wp_alloc next as "HNext".
-    wp_alloc a as "Ha".
-    wp_pures.
-    iModIntro.
-    iApply "Phi".
-    iExists (SOMEV #a).
-    iExists #prev.
-    iExists #next.
-    unfold list_ex.
-    unfold dlist.
-    iExists #next.
-    iExists a.
-    by iFrame.
+  iIntros (h) "WA Phi".
+  wp_alloc prev as "HPrev".
+  wp_let.
+  wp_alloc next as "HNext".
+  wp_alloc a as "Ha".
+  wp_pures.
+  iModIntro.
+  iApply "Phi".
+  iExists (SOMEV #a).
+  iExists #prev.
+  iExists #next.
+  unfold list_ex.
+  unfold dlist.
+  iExists #next.
+  iExists a.
+  by iFrame.
 Qed.
