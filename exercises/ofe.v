@@ -49,8 +49,12 @@ CoFixpoint fun2stream (f : nat → nat) : stream :=
 
 Lemma fun2stream_nth (f : nat → nat) (n : nat) : nth (fun2stream f) n = f n.
 Proof.
-  (* exercise *)
-Admitted.
+  generalize f.
+  clear f.
+  induction n; simpl.
+  - done.
+  - intros. apply IHn.
+Qed.
 
 Section ofe.
 

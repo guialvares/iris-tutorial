@@ -100,6 +100,42 @@ Lemma merge_spec (a1 a2 b : loc) (l1 l2 : list Z) (l : list val) :
     ⌜l1 ++ l2 ≡ₚ l⌝
   }}}.
 Proof.
+  iIntros (Φ) "(A1 & A2 & Bl & %SL1 & %SL2 & %LEq) H2".
+  destruct l1 as [|x1 l1].
+  - simpl.
+    wp_rec.
+    wp_pures.
+    rewrite nil_length Nat.add_0_l in LEq.
+    iApply (wp_array_copy_to with "[$Bl $A2]"); auto.
+    * by rewrite fmap_length.
+    * iIntros "!> [BL A2L]".
+      iApply "H2".
+      by iFrame.
+  - wp_rec.
+    wp_pures.
+    destruct l2 as [|x2 l2].
+    * wp_pures.
+      iApply (wp_array_copy_to with "[$Bl $A1]").
+      -- rewrite LEq. auto.
+      -- simpl. by rewrite fmap_length.
+      -- iIntros "!> [Hb Ha1]".
+         iApply "H2".
+         iFrame.
+         by rewrite app_nil_r.
+    * wp_pures.
+      rewrite !fmap_cons.
+      setoid_rewrite array_cons.
+      iDestruct "A1" as "[HA1 HA1c]".
+      iDestruct "A2" as "[HA2 HA2c]".
+      wp_load.
+      wp_load.
+      wp_pures.
+
+      wp_load.
+      rewrite fmap_cons fmap_cons.
+      rewrite array_cons.
+      (* rewrite fmap_cons array_cons. *)
+      wp_load.
   (* exercise *)
 Admitted.
 

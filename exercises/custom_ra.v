@@ -256,6 +256,8 @@ Definition state_inv γ (l : loc) (x : Z) : iProp Σ :=
 *)
 Lemma thread_spec γ l (x : Z) : {{{inv N (state_inv γ l x)}}} #l <- !#l + #1 {{{RET #(); own γ Final}}}.
 Proof.
+  iIntros (Φ) "#I HΦ".
+  wp_bind (! _)%E.
   (* exercise *)
 Admitted.
 
