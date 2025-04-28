@@ -239,8 +239,7 @@ Proof.
     remaining WP.
   *)
   iModIntro.
-  wp_pure.
-  done.
+  by wp_pure.
 Qed.
 
 (* ----------------------------------------------------------------- *)
@@ -439,8 +438,7 @@ Proof.
     iModIntro.
     iSplitL "Hl".
     { by iExists (i + 1)%Z. }
-    do 2 wp_pure.
-    done.
+    by do 2 wp_pure.
   - wp_pures.
     iInv "I" as "[%i Hl]".
     wp_load.
