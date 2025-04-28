@@ -359,7 +359,7 @@ Proof. compute. done. Qed.
 (**
   The core of [DfracDiscarded] is [Some DfracDiscarded].
 *)
-Lemma dfrac_core_discarded : pcore (DfracDiscarded) = Some DfracDiscarded.
+Lemma dfrac_core_discarded : pcore DfracDiscarded = Some DfracDiscarded.
 Proof. compute. done. Qed.
 
 (**

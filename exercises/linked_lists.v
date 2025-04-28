@@ -260,6 +260,7 @@ Proof.
   revert a l.
   induction xs as [|x xs IHxs].
   all: simpl.
+  
   (* exercise *)
 Admitted.
 
