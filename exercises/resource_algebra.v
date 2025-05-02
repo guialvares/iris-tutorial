@@ -548,6 +548,9 @@ Proof.
   { compute_done. }
   rewrite cmra_opM_opM_assoc_L.
   (* exercise *)
+  rewrite cmra_op_opM_assoc in Hvalid.
+  rewrite dfrac_ra_mixin.(ra_comm _) in Hvalid.
+  apply dfrac_ra_mixin.(ra_valid_op_l _) in Hvalid.
 Admitted.
 
 (* ================================================================= *)
@@ -1178,6 +1181,11 @@ Proof.
   iApply "HUP".
 Qed.
 
+Lemma upd_idemp2 (P : iProp Σ): (|==> |==> P) ⊢ |==> P.
+Proof.
+  by iIntros ">>HP !>".
+Qed.
+
 (* ----------------------------------------------------------------- *)
 (** *** Allocation and Updates *)
 
@@ -1249,6 +1257,7 @@ Proof.
   iIntros (h) "H1 H2".
   iMod (own_dfrac_update with "H1") as "Hdisc".
   wp_pures.
+  iModIntro.
   by iApply "H2".
 Qed.
 

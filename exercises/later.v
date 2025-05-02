@@ -34,12 +34,13 @@ Context `{!heapGS Σ}.
   hypotheses.
 *)
 
-Lemma later_mono (P Q : iProp Σ) : (Q ⊢ P) → (▷ Q ⊢ ▷ P).
+Lemma later_mono (P Q R : iProp Σ) : (Q ∗ R ⊢ P) → (▷ Q ∗ ▷ R  ⊢ ▷ P).
 Proof.
   intros HQP.
-  iIntros "HQ".
+  iIntros "[HQ HR]".
   iNext.
-  by iApply HQP.
+  iApply HQP.
+  iFrame.
 Qed.
 
 (**
@@ -69,6 +70,11 @@ Proof.
   iNext.
   done.
 Qed.
+
+Lemma later_before (P : iProp Σ) : ▷ P ⊢  P.
+Proof.
+  iIntros "HP".
+Abort.
 
 (**
   The later modality distributes over [∧], [∨], [∗], and is preserved
