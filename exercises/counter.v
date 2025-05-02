@@ -472,24 +472,36 @@ Lemma read_spec (c : val) (γ : gname) (n : nat) (q : Qp) :
     read c
   {{{ (u : nat), RET #u; is_counter c γ n q ∗ ⌜n ≤ u⌝ }}}.
 Proof.
-  iIntros (Φ) "(%l & -> & Ho & HInv) HΦ".
+  iIntros (Φ) "(%l & -> & Ho & #HInv) HΦ".
   wp_lam.
   iInv "HInv" as "(%m & Hl & Ho2)".
   wp_load.
   iModIntro.
-  iSplitL "Hl Ho2"; first iFrame.
+  iPoseProof (state_valid with "Ho2 Ho") as "%H".
+  iSplitL "Hl Ho2"; first iFrame. 
   iApply "HΦ".
-  
-    
-
-  (* exercise *)
-Admitted.
+  iSplitL; last done.
+  iExists l.
+  iFrame.
+  iSplitL; first done.
+  iApply "HInv".
+Qed.
 
 Lemma read_spec_full (c : val) (γ : gname) (n : nat) :
   {{{ is_counter c γ n 1 }}} read c {{{ RET #n; is_counter c γ n 1 }}}.
 Proof.
-  (* exercise *)
-Admitted.
+  iIntros (Φ) "(%l & -> & Ho & #HInv) HΦ".
+  wp_lam.
+  iInv "HInv" as "(%m & Hl & Ho2)".
+  wp_load.
+  iModIntro.
+  iPoseProof (state_valid_full with "Ho2 Ho") as "->".
+  iSplitL "Hl Ho2"; first iFrame.
+  iApply "HΦ".
+  iExists l.
+  iFrame.
+  by iSplitL.
+Qed.  
 
 Lemma incr_spec (c : val) (γ : gname) (n : nat) (q : Qp) :
   {{{ is_counter c γ n q }}}
@@ -508,13 +520,37 @@ Proof.
   wp_pures.
   wp_bind (CmpXchg _ _ _).
   iInv "I" as "(%m' & Hl & Hγ)".
+  rewrite Z.add_comm -(Nat2Z.inj_add 1) /=.
   destruct (decide (# m = # m')).
   - injection e as e.
     apply (inj Z.of_nat) in e.
     subst m'.
     wp_cmpxchg_suc.
     (* exercise *)
-Admitted.
+    iPoseProof (state_valid with "Hγ Hγ'") as "%Hnm".
+    iMod (update_state with "[Hγ Hγ']") as "[H1 H2]"; first iFrame.
+    iSplitL "Hl H1".
+    { iExists (S m).  by iFrame. }
+    iModIntro.
+    wp_pures.
+    iApply "HΦ".
+    iFrame.
+    iSplitL; first done.
+    iExists l.
+    iSplitL; first done.
+    iApply "I".
+  - wp_cmpxchg_fail.
+    (* iPoseProof (state_valid with "Hγ Hγ'") as "%Hnm".
+    iMod (update_state with "[Hγ Hγ']") as "[H1 H2]"; first iFrame. *)
+    iSplitL "Hl Hγ".
+    { iExists m'. by iFrame. }
+    iModIntro.
+    wp_pures.
+    wp_apply ("IH" with "Hγ'").
+    iIntros (p) "[%np HC]".
+    iApply "HΦ".
+    by iFrame.
+Qed.
 
 End spec2.
 End spec2.

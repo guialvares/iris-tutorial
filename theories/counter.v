@@ -264,7 +264,7 @@ Proof.
     iExists l.
     iSplitR; first done.
     rewrite -(max_l (S m) (S n)); last by apply le_n_S.
-    iDestruct "Hγ'" as "[_ $]".
+    by iDestruct "Hγ'" as "[_ $]".
   - wp_cmpxchg_fail.
     iModIntro.
     iSplitL "Hl Hγ".
