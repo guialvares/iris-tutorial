@@ -259,6 +259,39 @@ Proof.
   iIntros (Φ) "#I HΦ".
   wp_bind (! _)%E.
   (* exercise *)
+  iInv "I" as "(%i & >Hi & [>[Ho ->] | [>Ho >%Hxi]])".
+  - wp_load.
+    iSplitL "Hi Ho".
+    + iExists i.
+      iFrame.
+      iLeft.
+      by iFrame.
+    + iModIntro.
+      wp_pures.
+      iInv "I" as "(%i2 & >Hi & [>[Ho ->] | [>Ho >%Hxi]])".
+      * wp_store.
+        iMod (state_bupd with "Ho") as "#Hγ".
+        iSplitR "HΦ".
+        -- iExists (i2 +1)%Z.
+           iFrame.
+           iRight.
+           iModIntro. 
+           iNext. 
+           iSplit; first done.
+           ++ iPureIntro. lia.
+        -- iModIntro. by iApply "HΦ".
+      * wp_store.
+        iMod (state_bupd with "Ho") as "#Hγ".
+        iSplitR "HΦ".
+        -- iExists (i +1)%Z.
+           iModIntro.
+           iNext.
+           iFrame.
+           iRight.
+           iSplit; first done.
+           iPureIntro. lia.
+        -- iModIntro. by iApply "HΦ".
+  -
 Admitted.
 
 Lemma body_spec l (x : Z) : {{{l ↦ #x}}} (#l <- !#l + #1) ||| (#l <- !#l + #1);; !#l {{{(y : Z), RET #y; ⌜x < y⌝%Z}}}.
