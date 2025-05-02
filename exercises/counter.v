@@ -284,8 +284,22 @@ Lemma par_incr :
     read "c"
   {{{ n, RET #(S n); True }}}.
 Proof.
-  (* exercise *)
-Admitted.
+  iIntros "%Φ _ HΦ".
+  wp_apply mk_counter_spec; first done.
+  iIntros (c γ) "#HC".
+  wp_pures.
+  wp_apply (wp_par (λ _, is_counter c γ 1) (λ _, is_counter c γ 1)).
+  1,2: wp_apply (incr_spec with "HC");
+    iIntros (u) "[%Hu #HC1]";
+    iApply "HC1".
+  * iIntros (v1 v2) "[#H0 #H2]".
+    iNext.
+    wp_pures.
+    wp_apply (read_spec with "H0").
+    iIntros.
+    destruct u; first inversion H.
+    by iApply "HΦ".
+Qed.
 
 End spec1.
 End spec1.
@@ -387,8 +401,7 @@ Proof.
   apply Some_pair_included in H.
   destruct H as [_ H].
   rewrite Some_included_total in H.
-  apply nat_included in H.
-  done.
+  by apply nat_included in H.
 Qed.
 
 (**
@@ -409,8 +422,7 @@ Proof.
   destruct H as [H _].
   apply Some_included_exclusive in H.
   - destruct H as [_ H]; cbn in H.
-    apply leibniz_equiv in H.
-    done.
+    by apply leibniz_equiv in H.
   - apply _.
   - done.
 Qed.
@@ -442,14 +454,34 @@ Qed.
 Lemma mk_counter_spec :
   {{{ True }}} mk_counter #() {{{ c γ, RET c; is_counter c γ 0 1}}}.
 Proof.
-  (* exercise *)
-Admitted.
+  iIntros (Φ) "_ HΦ".
+  iMod alloc_initial_state as "[%γ [H1 H2]]".
+  wp_lam.
+  wp_alloc l as "Hl".
+  iApply "HΦ".
+  iExists l.
+  iSplitR; first done.
+  iFrame.
+  iApply inv_alloc.
+  iExists 0.
+  iFrame.
+Qed.
 
 Lemma read_spec (c : val) (γ : gname) (n : nat) (q : Qp) :
   {{{ is_counter c γ n q }}}
     read c
   {{{ (u : nat), RET #u; is_counter c γ n q ∗ ⌜n ≤ u⌝ }}}.
 Proof.
+  iIntros (Φ) "(%l & -> & Ho & HInv) HΦ".
+  wp_lam.
+  iInv "HInv" as "(%m & Hl & Ho2)".
+  wp_load.
+  iModIntro.
+  iSplitL "Hl Ho2"; first iFrame.
+  iApply "HΦ".
+  
+    
+
   (* exercise *)
 Admitted.
 
