@@ -162,6 +162,13 @@ Proof.
     by iApply "IH".
   - wp_load.
     iModIntro.
+    iSplitL.
+    * unfold handle_inv1.
+      iExists (SOMEV w).
+      iFrame. 
+      iRight.
+      by iFrame.
+    * wp_pures. 
     (** 
       Now we need [HΨ] to reestablish the invariant, but we also need it
       for the postcondition. We are stuck... 

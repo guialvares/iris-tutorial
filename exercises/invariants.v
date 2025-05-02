@@ -280,7 +280,7 @@ Proof.
     the fancy update modality immediately, we use the [iMod] tactic.
     We can do this since the goal contains a fancy update modality.
   *)
-  iMod (inv_alloc N _ (l ↦ #0) with "[Hl]") as "Hinv".
+  iMod (inv_alloc N _ (l ↦ #0) with "[Hl]") as "#Hinv".
   (**
     As discussed, in order to allocate the invariant, we must prove that
     it holds after one step.
@@ -289,9 +289,7 @@ Proof.
   (**
     With the invariant allocated, we can finish the proof.
   *)
-  iModIntro.
-  iApply "HΦ".
-  iApply "Hinv".
+  by iApply "HΦ".
 Qed.
 
 (**
@@ -332,7 +330,6 @@ Proof.
   iMod (inv_alloc N _ (prog_inv l) with "[Hl]") as "#Hinv".
   (** We prove that the invariant is currently true. *)
   {
-    iNext.
     iExists #0.
     iFrame.
     by iLeft.
@@ -409,7 +406,7 @@ Proof.
   wp_pures.
   (** Like before, we allocate the invariant. *)
   iMod (inv_alloc N _ (prog2_inv l) with "[Hl]") as "#I".
-  { iNext. by iExists 0. }
+  { by iExists 0. }
   wp_apply wp_fork.
   - wp_pure.
     (** We use löb induction to accent the recursive calls. *)

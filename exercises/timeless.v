@@ -121,13 +121,11 @@ Proof.
     Thus, we must open the invariant.
   *)
   wp_bind (CmpXchg #l #5 #6)%E.
-  iInv "Hinv" as "[Heq HP]".
+  iInv "Hinv" as "[>-> HP]".
   (**
     Opening the invariant only gives us that [w] equals [5] later.
     However, as pure propositions are timeless, we can strip the later.
   *)
-  iMod "Heq" as "%Heq".
-  rewrite Heq.
   (** Now we can prove that the CAS succeeds. *)
   wp_cmpxchg_suc.
   iSplitL "HP"; first by iFrame.

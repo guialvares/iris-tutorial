@@ -196,14 +196,31 @@ Qed.
 Lemma mk_counter_spec :
   {{{ True }}} mk_counter #() {{{ c γ, RET c; is_counter c γ 0}}}.
 Proof.
-  (* exercise *)
-Admitted.
+  iIntros (Φ) "_ HΦ".
+  wp_lam.
+  wp_alloc l as "Hl".
+  iMod alloc_initial_state as "(%γ & Hγ & Hγ')".
+  iApply "HΦ".
+  iExists l.
+  iMod (inv_alloc N _ (∃ m : nat, l ↦ #m ∗ own γ (● MaxNat m)) with "[Hl Hγ]") as "#HInv".
+  { iExists 0. iFrame. }
+  iModIntro.
+  iFrame.
+  iSplitR; first done.
+  iApply "HInv".
+Qed.
 
 Lemma read_spec c γ n :
   {{{ is_counter c γ n }}} read c {{{ (u : nat), RET #u; ⌜n ≤ u⌝ }}}.
 Proof.
-  (* exercise *)
-Admitted.
+  iIntros (Φ) "(%l & -> & Ho & HInv) HΦ".
+  wp_lam.
+  iInv "HInv" as "(%m & >Hl & >Ho2)".
+  wp_load.
+  iPoseProof (state_valid with "Ho2 Ho") as "%Hnm".
+  iFrame.
+  by iApply "HΦ".
+Qed.
 
 Lemma incr_spec c γ n :
   {{{ is_counter c γ n }}}
@@ -227,8 +244,26 @@ Proof.
     injection e as e.
     apply (inj Z.of_nat) in e.
     subst m'.
-    (* exercise *)
-Admitted.
+    iPoseProof (state_valid with "Hγ Hγ'") as "%Hnm".
+    iPoseProof (update_state with "Hγ") as ">[H1 #H2]".
+    rewrite Z.add_comm -(Nat2Z.inj_add 1) /=.
+    iModIntro.
+    iSplitL "Hl H1"; first by iFrame.
+    wp_pures.
+    iApply "HΦ".
+    iModIntro.
+    iSplitR; first done.
+    iExists l.
+    iSplitR; first done.
+    rewrite -(max_l (S m) (S n)); last by apply le_n_S.
+    by iDestruct "H2" as "[_ $]".
+  - wp_cmpxchg_fail.
+    iSplitL "Hl Hγ"; first by iFrame.
+    iModIntro.
+    wp_pures.
+    iApply "IH".
+    iApply "HΦ".
+Qed.
 
 (* ================================================================= *)
 (** ** A Simple Counter Client *)
