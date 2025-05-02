@@ -26,3 +26,4 @@ _opam
 .DS_Store
 html/*
 .vscode/
+doc.pdf
