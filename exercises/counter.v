@@ -206,8 +206,7 @@ Proof.
   { iExists 0. iFrame. }
   iModIntro.
   iFrame.
-  iSplitR; first done.
-  iApply "HInv".
+  iSplitR; done.
 Qed.
 
 Lemma read_spec c γ n :
@@ -261,8 +260,7 @@ Proof.
     iSplitL "Hl Hγ"; first by iFrame.
     iModIntro.
     wp_pures.
-    iApply "IH".
-    iApply "HΦ".
+    iApply ("IH" with "HΦ").
 Qed.
 
 (* ================================================================= *)
@@ -348,17 +346,17 @@ Proof.
   - iIntros "(%l & -> & [Hγ1 Hγ2] & #I)".
     iSplitL "Hγ1".
     + iExists l.
-      iSplitR; first done.
-      by iFrame.
+      iFrame.
+      iSplit; done.
     + iExists l.
-      iSplitR; first done.
-      by iFrame.
+      iFrame.
+      iSplit; done.
   - iIntros "[(%l & -> & Hγ1 & I) (%l' & %H & Hγ2 & _)]".
     injection H as <-.
     iExists l.
-    iSplitR; first done.
-    iCombine "Hγ1 Hγ2" as "Hγ".
     iFrame.
+    iSplitR; first done.
+    iSplitL "Hγ1"; done.
 Qed.
 
 (**
@@ -483,8 +481,7 @@ Proof.
   iSplitL; last done.
   iExists l.
   iFrame.
-  iSplitL; first done.
-  iApply "HInv".
+  iSplit; done.
 Qed.
 
 Lemma read_spec_full (c : val) (γ : gname) (n : nat) :
@@ -500,7 +497,7 @@ Proof.
   iApply "HΦ".
   iExists l.
   iFrame.
-  by iSplitL.
+  by iSplit.
 Qed.  
 
 Lemma incr_spec (c : val) (γ : gname) (n : nat) (q : Qp) :
@@ -530,26 +527,20 @@ Proof.
     iPoseProof (state_valid with "Hγ Hγ'") as "%Hnm".
     iMod (update_state with "[Hγ Hγ']") as "[H1 H2]"; first iFrame.
     iSplitL "Hl H1".
-    { iExists (S m).  by iFrame. }
+    { iExists (S m). by iFrame. }
     iModIntro.
     wp_pures.
     iApply "HΦ".
     iFrame.
     iSplitL; first done.
     iExists l.
-    iSplitL; first done.
-    iApply "I".
+    iSplitL; done.
   - wp_cmpxchg_fail.
-    (* iPoseProof (state_valid with "Hγ Hγ'") as "%Hnm".
-    iMod (update_state with "[Hγ Hγ']") as "[H1 H2]"; first iFrame. *)
     iSplitL "Hl Hγ".
     { iExists m'. by iFrame. }
     iModIntro.
     wp_pures.
-    wp_apply ("IH" with "Hγ'").
-    iIntros (p) "[%np HC]".
-    iApply "HΦ".
-    by iFrame.
+    wp_apply ("IH" with "Hγ' HΦ").
 Qed.
 
 End spec2.
