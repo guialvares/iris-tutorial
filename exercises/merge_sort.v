@@ -101,13 +101,14 @@ Lemma merge_spec (a1 a2 b : loc) (l1 l2 : list Z) (l : list val) :
   }}}.
 Proof.
   iIntros (Φ) "(A1 & A2 & Bl & %SL1 & %SL2 & %LEq) H2".
+  iLöb as "IH" forall (a1 a2 b l1 l2 l SL1 SL2 LEq).
   destruct l1 as [|x1 l1].
   - simpl.
     wp_rec.
     wp_pures.
-    rewrite nil_length Nat.add_0_l in LEq.
+    rewrite length_nil Nat.add_0_l in LEq.
     iApply (wp_array_copy_to with "[$Bl $A2]"); auto.
-    * by rewrite fmap_length.
+    * by rewrite length_fmap.
     * iIntros "!> [BL A2L]".
       iApply "H2".
       by iFrame.
@@ -117,7 +118,7 @@ Proof.
     * wp_pures.
       iApply (wp_array_copy_to with "[$Bl $A1]").
       -- rewrite LEq. auto.
-      -- simpl. by rewrite fmap_length.
+      -- simpl. by rewrite length_fmap.
       -- iIntros "!> [Hb Ha1]".
          iApply "H2".
          iFrame.
@@ -130,14 +131,55 @@ Proof.
       wp_load.
       wp_load.
       wp_pures.
-
-      wp_load.
-      rewrite fmap_cons fmap_cons.
-      rewrite array_cons.
-      (* rewrite fmap_cons array_cons. *)
-      wp_load.
-  (* exercise *)
-Admitted.
+      destruct l as [|y l].
+      { inversion LEq. }
+      setoid_rewrite array_cons.
+      iDestruct "Bl" as "(HBx & HB1)".
+      apply StronglySorted_inv in SL1 as [H1 Hl1].
+      (* apply StronglySorted_inv in SL2 as [H2 Hl2]. *)
+      rewrite !length_cons Nat.add_succ_l Nat.add_succ_r in LEq.
+      injection LEq as LEq.
+      destruct (bool_decide_reflect (x1 ≤ x2)%Z) as [Hx|Hx]; wp_pures; wp_store; wp_pures.
+      + rewrite Nat2Z.inj_succ Z.sub_1_r Z.pred_succ.
+        iApply ("IH" $! (a1 +ₗ 1) a2 (b +ₗ 1) l1 (x2 :: l2) l with "[] [] [] [HA1c] [HA2 HA2c] [HB1]"); try done.
+        { by rewrite !length_cons Nat.add_succ_r LEq. }
+        { rewrite !fmap_cons. setoid_rewrite array_cons.  iFrame. }
+        iIntros "!> %l0 (HAa1 & HA2 & B1 & %Sl0 & %EqP)".
+        iApply ("H2" $! (x1 :: l0)).
+        rewrite !fmap_cons.
+        setoid_rewrite array_cons.
+        iFrame.
+        iPureIntro.
+        split.
+        ++ apply SSorted_cons; auto.
+           rewrite -EqP Forall_app Forall_cons.
+           split; try split; try auto.
+           apply StronglySorted_inv in SL2 as [H2 Hl2].
+           eapply Forall_impl; first done.
+           intros. by etrans.
+        ++ by apply Permutation_skip.
+      + apply Z.nle_gt, Z.lt_le_incl in Hx.
+        rewrite (Nat2Z.inj_succ (length l2)) Z.sub_1_r Z.pred_succ.
+        apply StronglySorted_inv in SL2 as [H2 Hl2].
+        iApply ("IH" $! a1 (a2 +ₗ 1) (b +ₗ 1) (x1 :: l1) l2 l with "[] [] [] [HA1 HA1c] [HA2c] [HB1]"); try done.
+        { iPureIntro. by apply SSorted_cons. }
+        { rewrite fmap_cons array_cons. iFrame. }
+        iClear "IH".
+        iIntros "!> %l0 (HAa1 & HAa2 & B1 & %Sl0 & %EqP)".
+        iApply ("H2" $! (x2 :: l0)).
+        rewrite fmap_cons array_cons.
+        iFrame.
+        iPureIntro.
+        split.
+        ++ apply SSorted_cons; first done.
+           rewrite -EqP.
+           rewrite Forall_app Forall_cons.
+           split_and!; try done.
+           eapply Forall_impl; try done.
+           intros. 
+           etrans; try done.
+        ++ by eapply (Permutation_elt _ l2 [] _ x2).
+Qed.  
 
 (**
   With this, we can prove that sort actually sorts the output.

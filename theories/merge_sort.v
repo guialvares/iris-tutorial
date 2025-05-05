@@ -106,22 +106,22 @@ Lemma merge_spec (a1 a2 b : loc) (l1 l2 : list Z) (l : list val) :
   wp_pures.
   destruct l1 as [|x1 l1].
   {
-    rewrite nil_length Nat.add_0_l in H.
+    rewrite length_nil Nat.add_0_l in H.
     wp_pures.
     iApply (wp_array_copy_to with "[$Hb $Ha2]").
     - by rewrite H.
-    - by rewrite fmap_length.
+    - by rewrite length_fmap.
     - iIntros "!> [Hb Ha2]".
       iApply "HΦ".
       by iFrame.
   }
   destruct l2 as [|x2 l2].
   {
-    rewrite nil_length Nat.add_0_r in H.
+    rewrite length_nil Nat.add_0_r in H.
     wp_pures.
     iApply (wp_array_copy_to with "[$Hb $Ha1]").
     - by rewrite H.
-    - by rewrite fmap_length.
+    - by rewrite length_fmap.
     - iIntros "!> [Hb Ha1]".
       iApply "HΦ".
       iFrame.
@@ -130,7 +130,7 @@ Lemma merge_spec (a1 a2 b : loc) (l1 l2 : list Z) (l : list val) :
   apply StronglySorted_inv in Hl1 as [H1 Hl1].
   apply StronglySorted_inv in Hl2 as [H2 Hl2].
   wp_pures.
-  rewrite !cons_length Nat.add_succ_l Nat.add_succ_r in H.
+  rewrite !length_cons Nat.add_succ_l Nat.add_succ_r in H.
   destruct l as [|y l]; first done.
   cbn in H.
   injection H as H.
