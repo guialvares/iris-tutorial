@@ -197,6 +197,28 @@ Lemma merge_sort_inner_spec (a b : loc) (l : list Z) :
     ⌜length vs = length l'⌝
   }}}.
 Proof.
+  iIntros (Φ) "[Ha Hb] HΦ".
+  iLöb as "IH" forall (a b l Φ).
+  wp_rec.
+  wp_pures.
+  destruct (bool_decide_reflect (length l ≤ 1)%Z) as [Hl|Hl]; wp_pures.
+  { apply (Nat2Z.inj_le _ 1) in Hl.
+    iApply "HΦ".
+    iFrame.
+    iPureIntro.
+    split_and!; try done.
+    + destruct l as [| x [|x2 l]].
+      * apply SSorted_nil.
+      * apply SSorted_cons.
+        ++ apply SSorted_nil.
+        ++ done.
+      * simpl in Hl. lia.
+    + by rewrite length_fmap.
+  }
+
+
+
+
   (* exercise *)
 Admitted.
 

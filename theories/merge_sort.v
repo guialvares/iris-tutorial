@@ -288,7 +288,7 @@ Lemma merge_sort_inner_spec (a b : loc) (l : list Z) :
     {
       iPureIntro.
       split_and!; [done..|].
-      rewrite app_length.
+      rewrite length_app.
       by f_equal.
     }
     iIntros "%l (Hb1 & Hb2 & Ha & Hl & %Hl)".
